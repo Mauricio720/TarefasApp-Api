@@ -1,7 +1,7 @@
 # API utilizada no sistema para registro de tarefas no dia a dia.
-
 Essa Api foi desenvolvida em laravel e foi consumida por pelo front desenvolvido em React. Foi o primeiro projeto que fiz uma integração separada de backend e front-end e por conta do PHP ser a linguagem de backend que eu desenvolvo, criei a integração com o laravel, que é excelente para API. Utilizando a própria autenticação do laravel usando o JWT , acabou sendo poucas coisas criadas mas ja que o laravel tem muitas coisas prontas para o desenvolvimento, foi de extrema ajuda utiliza-lo.
 
+# Instalação
 Para utilizar a api, primeiramente use o composer update ou composer install para criar a pasta vendor. Após isso importe o arquivo sql agenda.sql no seu banco de dados (Não fiz o uso de migrations por não conhecer ainda). Ao fazer isso, vá no arquivo .env.exemple e mude as configurações para as escolhidas por você. As principais são as citadas abaixo:
 
 # ENV Configurações

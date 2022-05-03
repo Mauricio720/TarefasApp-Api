@@ -1,4 +1,3 @@
-# TarefasApp-API
 # API utilizada no sistema para registro de tarefas no dia a dia.
 
 Essa Api foi desenvolvida em laravel e foi consumida por pelo front desenvolvido em React. Foi o primeiro projeto que fiz uma integração separada de backend e front-end e por conta do PHP ser a linguagem de backend que eu desenvolvo, criei a integração com o laravel, que é excelente para API. Utilizando a própria autenticação do laravel usando o JWT , acabou sendo poucas coisas criadas mas ja que o laravel tem muitas coisas prontas para o desenvolvimento, foi de extrema ajuda utiliza-lo.
@@ -12,7 +11,7 @@ Para utilizar a api, primeiramente use o composer update ou composer install par
 ### DB_USERNAME=usuario do banco de dados 
 ### DB_PASSWORD=senha do banco de dados
 
-Após preencher o arquivo env.exemple renomeie o arquivo para .env
+#### Após preencher o arquivo env.example renomeie o arquivo para .env
 
 Essa api utiliza o storage do laravel para upload de imagens, então caso você use localmente utilize o comando php artisan storage:link para criar o link simbólico na pasta public. Caso esteja usando em hospedagem e não tiver acesso ao promp de comando, use a rota "nomedoseudominio/foo" para criar o link simbólico.
 

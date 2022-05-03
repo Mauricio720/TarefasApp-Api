@@ -53,15 +53,24 @@ class AuthController extends Controller
                     $array['error']="Algo deu errado GOOGLE!";
                 }   
             }else{
-                $token=Auth::attempt([
-                    'login'=>$data['login'],
-                    'password'=>$data['password']
+                $errors=Validator::make($data,[
+                    'login'=>'required',
+                    'password'=>'required'
                 ]);
 
-                if($token){
-                    $array['token']=$token;
+                if($errors->fails()){
+                    $array['error']=$errors->errors()->first();
                 }else{
-                    $array['error']="Email ou senha estão incorretos";
+                    $token=Auth::attempt([
+                        'login'=>$data['login'],
+                        'password'=>$data['password']
+                    ]);
+    
+                    if($token){
+                        $array['token']=$token;
+                    }else{
+                        $array['error']="Email ou senha estão incorretos";
+                    }
                 }
             }
         }
@@ -163,13 +172,14 @@ class AuthController extends Controller
                     $path_profileImg="";
                     $imgName="";
     
-                    if($request->filled('profileImg') && $request->file('profileImg')->isValid()){
+                    if($request->file('profileImg') && $request->file('profileImg')->isValid()){
                         $image=md5(rand(0,99999).rand(0,99999)).'.'.$request->file('profileImg')->getClientOriginalExtension();
                         $imgName=$image;
-                        $path="users/";
+                        $path="/users/";
                         $request->file('profileImg')->storeAs($path,$image);
                         $path_profileImg=url('/')."/storage".$path."/".$image;
                     }
+                    
                     $user=new User();
                     $user->name=$data['name'];
                     $user->lastName=$data['lastName'];

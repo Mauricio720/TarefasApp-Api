@@ -23,7 +23,7 @@ Route::get('/ping',function(){
     return ['pong'=>true];
 });
 
-Route::get('/401',[AuthController::class,'unauthorized'])->name('login');
+Route::any('/401',[AuthController::class,'unauthorized']);
 Route::post('/auth/login',[AuthController::class,'login']);
 Route::post('/auth/get_user',[AuthController::class,'getUser']);
 Route::post('/auth/logout',[AuthController::class,'logout']);

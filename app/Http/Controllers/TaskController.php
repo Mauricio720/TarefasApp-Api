@@ -70,6 +70,7 @@ class TaskController extends Controller
 
         $array['isMe']=$isMe;
         $array['tasks']=$this->getRepeatInformation($array['data']);
+        
         return $array;
     }
 

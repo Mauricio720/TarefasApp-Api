@@ -268,8 +268,7 @@ class AuthController extends Controller
     public function unauthorized(){
         return response()->json(['error'=>"Não autorizado"],401);
     }
-
-
+    
     private function validator($data){
         $correct_names = [
             'name'=>'nome',

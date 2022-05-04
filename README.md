@@ -21,7 +21,7 @@ php artisan jwt:secret
 php artisan cache:clear
 php artisan config:clear
 
-Após essas configurações utilize o php artisan key:generate para criar um nova chave, agora basta usar o php artisan serve para iniciar a aplicação caso esteja local.
+Utilize o php artisan key:generate para criar um nova chave, agora basta usar o php artisan serve para iniciar a aplicação caso esteja local.
 
 # Front-end dessa aplicação.
 Você pode baixar e utilizar o front da aplicação no link https://github.com/Mauricio720/TarefasApp-Front.

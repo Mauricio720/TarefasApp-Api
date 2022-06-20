@@ -192,6 +192,8 @@ class TaskController extends Controller
                 $task->task_path=$taskImg_path;
                 $task->task_img=$imgName;
                 $task->save();
+
+                $this->verifyConquest();
             }
         }
     }
@@ -386,6 +388,9 @@ class TaskController extends Controller
                 $task=Task::where('id',$id)->first();
                 if($task !=null && $task->idUser==Auth::user()->id){
                     Task::where('id',$id)->delete();
+                    
+                    $this->verifySequence();
+                    $this->verifyConquest();
                 }else{
                     $array['error']="Ocorreu um erro!";
                 }

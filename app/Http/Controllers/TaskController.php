@@ -12,6 +12,30 @@ use App\Models\User;
 
 class TaskController extends Controller
 {
+    public $conquestArray=[
+        '1'=>'one_day',
+        '2'=>'two_day',
+        '3'=>'three_day',
+        '4'=>'four_day',
+        '5'=>'five_day',
+        '6'=>'six_day',
+        '7'=>'one_week',
+        '14'=>'two_week',
+        '21'=>'three_week',
+        '30'=>'one_month',
+        '60'=>'two_month',
+        '90'=>'three_month',
+        '120'=>'four_month',
+        '150'=>'five_month',
+        '180'=>'six_month',
+        '210'=>'seven_month',
+        '240'=>'eight_month',
+        '270'=>'nine_month',
+        '300'=>'ten_month',
+        '330'=>'eleven_month',
+        '360'=>'one_year',
+    ];
+    
     public function __construct(){
         $this->middleware('auth:api');
     }
@@ -181,6 +205,9 @@ class TaskController extends Controller
                     $request->file('taskImgFile')->storeAs($path,$image);
                     $taskImg_path=url('/')."/storage".$path.$image;
                 }
+
+                $wasComplete=$this->verifyAllTaskComplete($data['date']);
+
                 $task=new Task();
                 $task->title=$data['title'];
                 $task->start=$data['start'];
@@ -192,8 +219,20 @@ class TaskController extends Controller
                 $task->task_path=$taskImg_path;
                 $task->task_img=$imgName;
                 $task->save();
+                
+                if(Auth::user()->sequence > 0){
+                    if($wasComplete){
+                        $conquest=Conquest::where('idUser',$idUser)->first();
+                        $conquest_day=$this->conquestArray[Auth::user()->sequence];
+                        $conquest->$conquest_day=$conquest->$conquest_day-1;
+                        $conquest->save();
 
-                $this->verifyConquest();
+                        $user=User::where('id',Auth::user()->id)->first();
+                        $user->sequence=$user->sequence-1;  
+                        $user->save();
+                    }
+                    
+                }
             }
         }
     }
@@ -241,8 +280,8 @@ class TaskController extends Controller
         }
     }
 
-        $array['isMe']=$isMe;
-        return $array;
+    $array['isMe']=$isMe;
+    return $array;
     
     }
 
@@ -277,9 +316,11 @@ class TaskController extends Controller
         $date=$dateChoice==null?date('Y-m-d'):$dateChoice;
         $allTaskNumber=Task::where('idUser',$idUser)->where('date',$date)->count();
         $taskSuccessNumber=Task::where('idUser',$idUser)->where('date',$date)->where('selected',1)->count();
-      
-        if($allTaskNumber==$taskSuccessNumber){
-            $verify=true;
+        
+        if($allTaskNumber>0){
+            if($allTaskNumber==$taskSuccessNumber){
+                $verify=true;
+            }
         }
         
         return $verify;
@@ -301,29 +342,7 @@ class TaskController extends Controller
 
         $idUser=$user->id;
         $sequence=strval($user->sequence);
-        $conquestArray=[
-            '1'=>'one_day',
-            '2'=>'two_day',
-            '3'=>'three_day',
-            '4'=>'four_day',
-            '5'=>'five_day',
-            '6'=>'six_day',
-            '7'=>'one_week',
-            '14'=>'two_week',
-            '21'=>'three_week',
-            '30'=>'one_month',
-            '60'=>'two_month',
-            '90'=>'three_month',
-            '120'=>'four_month',
-            '150'=>'five_month',
-            '180'=>'six_month',
-            '210'=>'seven_month',
-            '240'=>'eight_month',
-            '270'=>'nine_month',
-            '300'=>'ten_month',
-            '330'=>'eleven_month',
-            '360'=>'one_year',
-        ];
+       
 
         $messages=[
             '1'=>'Você completou uma sequência de 1 dia!!!',
@@ -352,8 +371,8 @@ class TaskController extends Controller
         $message="Voce concluiu as tarefas de hoje!!!";
         $conquest=Conquest::where('idUser',$idUser)->first();
 
-        if(array_key_exists($sequence, $conquestArray)){
-            $conquest_day=$conquestArray[$sequence];
+        if(array_key_exists($sequence, $this->conquestArray)){
+            $conquest_day=$this->conquestArray[$sequence];
             
             if($this->verifyAllTaskComplete()){
                 $conquest->$conquest_day=$conquest->$conquest_day+1;
@@ -361,15 +380,15 @@ class TaskController extends Controller
                 $message=$messages[$sequence];
             }else{
                 $oldSequence=$sequence+1;
-                if(array_key_exists($oldSequence, $conquestArray)){
-                    $conquest_day=$conquestArray[$oldSequence];
+                if(array_key_exists($oldSequence, $this->conquestArray)){
+                    $conquest_day=$this->conquestArray[$oldSequence];
                     $conquest->$conquest_day=$conquest->$conquest_day-1;
                 }
             }
         }else{
             $oldSequence=$sequence+1;
-            if(array_key_exists($oldSequence, $conquestArray)){
-                $conquest_day=$conquestArray[$oldSequence];
+            if(array_key_exists($oldSequence, $this->conquestArray)){
+                $conquest_day=$this->conquestArray[$oldSequence];
                 $conquest->$conquest_day=$conquest->$conquest_day-1;
             }
         }
@@ -386,11 +405,38 @@ class TaskController extends Controller
             $isMe=true;
             if($id!=""){
                 $task=Task::where('id',$id)->first();
+                $oldDate=$task->date;
                 if($task !=null && $task->idUser==Auth::user()->id){
+                    $wasComplete=$this->verifyAllTaskComplete($oldDate);
                     Task::where('id',$id)->delete();
-                    
-                    $this->verifySequence();
-                    $this->verifyConquest();
+                   
+                    if($wasComplete===false){
+                        $isCompleteNow=$this->verifyAllTaskComplete($oldDate);
+                        if($isCompleteNow){
+                            $user=User::where('id',Auth::user()->id)->first();
+                            $user->sequence=$user->sequence+1;  
+                            $user->save();
+
+                            $conquest=Conquest::where('idUser',Auth::user()->id)->first();
+                            $conquest_day=$this->conquestArray[$user->sequence];
+                            $conquest->$conquest_day=$conquest->$conquest_day+1;
+                            $conquest->save();
+                        }
+                    }
+
+                    $allTaskNumber=Task::where('idUser',$idUser)->where('date',$oldDate)->count();
+                    if($allTaskNumber==0){
+                        $user=User::where('id',Auth::user()->id)->first();
+                        if($user->sequence > 0){
+                            $conquest=Conquest::where('idUser',Auth::user()->id)->first();
+                            $conquest_day=$this->conquestArray[$user->sequence];
+                            $conquest->$conquest_day=$conquest->$conquest_day-1;
+                            $conquest->save();
+
+                            $user->sequence=$user->sequence-1;  
+                            $user->save();
+                        }
+                    }
                 }else{
                     $array['error']="Ocorreu um erro!";
                 }
@@ -401,6 +447,7 @@ class TaskController extends Controller
         return $array;
     }
 
+   
     public function addTaskRepeat(Request $request,$idUser){
         $array=['error'=>"",'isMe'];
         $isMe=false;

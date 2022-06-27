@@ -465,7 +465,7 @@ class TaskController extends Controller
             if($request->filled('daysRepeat')){
                 if(in_array("7",$daysSelected)){
                     $taskRepeat="";
-                    if($idTaskRepeat==""){
+                    if($idTaskRepeat=="" || $idTaskRepeat==0){
                         $taskRepeat=new TaskRepeat();
                         $task->idTaskRepeat=$idTask;
                         $taskRepeat->last_register=date('Y-m-d');
@@ -496,7 +496,7 @@ class TaskController extends Controller
                     $saturday=in_array('6',$daysSelected)?true:false;
 
                     $taskRepeat="";
-                    if($idTaskRepeat==""){
+                    if($idTaskRepeat=="" || $idTaskRepeat==0){
                         $taskRepeat=new TaskRepeat();
                         $taskRepeat->last_register=date('Y-m-d');
                     }else{
@@ -514,9 +514,12 @@ class TaskController extends Controller
                     $taskRepeat->save();
                 }
             }else{
-                if($idTaskRepeat != ""){
+                if($idTaskRepeat != "" || $idTaskRepeat != 0){
                     $taskRepeat=TaskRepeat::where('id_task',$idTaskRepeat)->first();
                     $taskRepeat->delete();
+
+                    $task->idTaskRepeat=0;
+                    $task->save();
                 }
             }
         }

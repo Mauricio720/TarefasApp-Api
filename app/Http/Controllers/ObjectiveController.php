@@ -95,7 +95,6 @@ class ObjectiveController extends Controller
         }
 
         return $array;
-
     }
 
     public function changeSelectedObjective($id,$idUser){

@@ -416,40 +416,42 @@ class TaskController extends Controller
             $isMe=true;
             if($id!=""){
                 $task=Task::where('id',$id)->first();
-                $oldDate=$task->date;
-                if($task !=null && $task->idUser==Auth::user()->id){
-                    $wasComplete=$this->verifyAllTaskComplete($oldDate);
-                    Task::where('id',$id)->delete();
-                   
-                    if($wasComplete===false){
-                        $isCompleteNow=$this->verifyAllTaskComplete($oldDate);
-                        if($isCompleteNow){
+                if($task){
+                    $oldDate=$task->date;
+                    if($task !=null && $task->idUser==Auth::user()->id){
+                        $wasComplete=$this->verifyAllTaskComplete($oldDate);
+                        Task::where('id',$id)->delete();
+                       
+                        if($wasComplete===false){
+                            $isCompleteNow=$this->verifyAllTaskComplete($oldDate);
+                            if($isCompleteNow){
+                                $user=User::where('id',Auth::user()->id)->first();
+                                $user->sequence=$user->sequence+1;  
+                                $user->save();
+    
+                                $conquest=Conquest::where('idUser',Auth::user()->id)->first();
+                                $conquest_day=$this->conquestArray[$user->sequence];
+                                $conquest->$conquest_day=$conquest->$conquest_day+1;
+                                $conquest->save();
+                            }
+                        }
+    
+                        $allTaskNumber=Task::where('idUser',$idUser)->where('date',$oldDate)->count();
+                        if($allTaskNumber==0){
                             $user=User::where('id',Auth::user()->id)->first();
-                            $user->sequence=$user->sequence+1;  
-                            $user->save();
-
-                            $conquest=Conquest::where('idUser',Auth::user()->id)->first();
-                            $conquest_day=$this->conquestArray[$user->sequence];
-                            $conquest->$conquest_day=$conquest->$conquest_day+1;
-                            $conquest->save();
+                            if($user->sequence > 0){
+                                $conquest=Conquest::where('idUser',Auth::user()->id)->first();
+                                $conquest_day=$this->conquestArray[$user->sequence];
+                                $conquest->$conquest_day=$conquest->$conquest_day-1;
+                                $conquest->save();
+    
+                                $user->sequence=$user->sequence-1;  
+                                $user->save();
+                            }
                         }
+                    }else{
+                        $array['error']="Ocorreu um erro!";
                     }
-
-                    $allTaskNumber=Task::where('idUser',$idUser)->where('date',$oldDate)->count();
-                    if($allTaskNumber==0){
-                        $user=User::where('id',Auth::user()->id)->first();
-                        if($user->sequence > 0){
-                            $conquest=Conquest::where('idUser',Auth::user()->id)->first();
-                            $conquest_day=$this->conquestArray[$user->sequence];
-                            $conquest->$conquest_day=$conquest->$conquest_day-1;
-                            $conquest->save();
-
-                            $user->sequence=$user->sequence-1;  
-                            $user->save();
-                        }
-                    }
-                }else{
-                    $array['error']="Ocorreu um erro!";
                 }
             }
         }

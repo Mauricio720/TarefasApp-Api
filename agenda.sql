@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.1.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 18-Nov-2021 às 02:18
--- Versão do servidor: 10.4.21-MariaDB
--- versão do PHP: 7.4.25
+-- Tempo de geração: 20-Fev-2023 às 20:21
+-- Versão do servidor: 10.4.24-MariaDB
+-- versão do PHP: 7.4.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `agenda`
+-- Banco de dados: `bdagenda`
 --
 
 -- --------------------------------------------------------
@@ -51,16 +51,10 @@ CREATE TABLE `conquests` (
   `ten_month` int(11) DEFAULT 0,
   `eleven_month` int(11) DEFAULT 0,
   `one_year` int(11) DEFAULT 0,
-  `sequence_zero` tinyint(4) DEFAULT NULL
+  `sequence_zero` tinyint(4) DEFAULT NULL,
+  `already_decrease` tinyint(4) DEFAULT 0,
+  `already_decrease_sequence` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Extraindo dados da tabela `conquests`
---
-
-INSERT INTO `conquests` (`id`, `idUser`, `one_day`, `two_day`, `three_day`, `four_day`, `five_day`, `six_day`, `one_week`, `two_week`, `three_week`, `one_month`, `two_month`, `three_month`, `four_month`, `five_month`, `six_month`, `seven_month`, `eight_month`, `nine_month`, `ten_month`, `eleven_month`, `one_year`, `sequence_zero`) VALUES
-(1, 1, -13, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-(2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -114,13 +108,6 @@ CREATE TABLE `objectives` (
   `done` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Extraindo dados da tabela `objectives`
---
-
-INSERT INTO `objectives` (`id`, `title`, `type`, `level`, `id_user`, `done`) VALUES
-(1, 'teste', 1, 1, 1, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -156,15 +143,6 @@ CREATE TABLE `tasks` (
   `date_repeat` date DEFAULT NULL,
   `idTaskRepeat` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Extraindo dados da tabela `tasks`
---
-
-INSERT INTO `tasks` (`id`, `title`, `start`, `end`, `date`, `importance`, `description`, `icon`, `idUser`, `selected`, `task_path`, `task_img`, `days_repeat`, `date_repeat`, `idTaskRepeat`) VALUES
-(1, 'teste', '22:45:00', '23:45:00', '2021-07-03', 1, 'safdsfsadasd', '0', 1, 1, '', '', NULL, NULL, NULL),
-(2, 'teste', '20:05:00', '21:05:00', '2021-07-04', 1, 'dsfsfsfsfsfsfsfsfsfsfsfsfsf', '0', 1, 0, '', '', NULL, NULL, NULL),
-(3, 'teste', '20:05:00', '21:05:00', '2021-07-05', 1, 'dsfsfsfsfsfsfsfsfsfsfsfsfsf', '0', 1, 0, '', '', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -208,14 +186,6 @@ CREATE TABLE `users` (
   `sequence` int(11) DEFAULT NULL,
   `passRememberToken` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Extraindo dados da tabela `users`
---
-
-INSERT INTO `users` (`id`, `name`, `lastName`, `login`, `email`, `email_verified_at`, `password`, `profileImg`, `imgName`, `idFacebook`, `idGoogle`, `sequence`, `passRememberToken`) VALUES
-(1, 'Mauricio', 'Ferreira', 'MauriLP', 'mauricio-ferreira2015@outlook.com', NULL, '$2y$10$6Ca1y/a4ThKHIweDVi84TeBwBQPD36NuLuCZgzgiQ1ly1hUAdg37y', '', '', NULL, NULL, 0, ''),
-(2, 'Mauricio Ferreira', NULL, 'MauriFace', 'mauriciolinkinpark13@hotmail.com', NULL, '$2y$10$6Ca1y/a4ThKHIweDVi84TeBwBQPD36NuLuCZgzgiQ1ly1hUAdg37y', NULL, NULL, '3820883184700364', NULL, NULL, NULL);
 
 --
 -- Índices para tabelas despejadas
@@ -279,7 +249,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de tabela `conquests`
 --
 ALTER TABLE `conquests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `failed_jobs`
@@ -297,13 +267,13 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT de tabela `objectives`
 --
 ALTER TABLE `objectives`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `task_repeats`
@@ -315,7 +285,7 @@ ALTER TABLE `task_repeats`
 -- AUTO_INCREMENT de tabela `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

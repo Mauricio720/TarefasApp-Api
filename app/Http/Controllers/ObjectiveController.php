@@ -91,7 +91,9 @@ class ObjectiveController extends Controller
 
         if($request->filled(['id'])){
             $objective=Objective::where('id',$data['id'])->first();
-            $objective->delete();
+            if($objective){
+                $objective->delete();
+            }
         }
 
         return $array;

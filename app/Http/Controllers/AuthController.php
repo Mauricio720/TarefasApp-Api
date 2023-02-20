@@ -192,6 +192,8 @@ class AuthController extends Controller
     
                     $conquest=new Conquest();
                     $conquest->idUser=$user->id;
+                    $conquest->already_decrease=false;
+                    $conquest->already_decrease_sequence=false;
                     $conquest->save();
     
                     $token=Auth::attempt([

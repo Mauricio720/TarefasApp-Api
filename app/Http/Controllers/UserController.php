@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-   private  $urlFront="https://mauriciodev.online/remember_password/";    
+   private $urlFront="https://mauriciodev.online/remember_password/";    
     
     public function __construct(){
         $this->middleware('auth:api',['except'=>['forgotPassword',

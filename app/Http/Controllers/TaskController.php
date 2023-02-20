@@ -42,7 +42,7 @@ class TaskController extends Controller
 
     private function verifySequence(){
         $sequence_verify=$this->verifyAllTaskComplete(date('Y-m-d',strtotime('-1 day')));
-        if($sequence_verify==false && $this->verifyAllTaskComplete()==false){
+        if($sequence_verify==false){
             $user=User::where('id',Auth::user()->id)->first();
             $user->sequence=0;
             $user->save();
@@ -220,18 +220,20 @@ class TaskController extends Controller
                 $task->task_img=$imgName;
                 $task->save();
                 
-                if(Auth::user()->sequence > 0){
-                    if($wasComplete){
-                        $conquest=Conquest::where('idUser',$idUser)->first();
-                        $conquest_day=$this->conquestArray[Auth::user()->sequence];
-                        $conquest->$conquest_day=$conquest->$conquest_day-1;
-                        $conquest->save();
-
-                        $user=User::where('id',Auth::user()->id)->first();
-                        $user->sequence=$user->sequence-1;  
-                        $user->save();
+                
+                if($wasComplete){
+                    $sequence=Auth::user()->sequence;
+                    if($sequence==0){
+                        $sequence=1;
                     }
-                    
+                    $conquest=Conquest::where('idUser',$idUser)->first();
+                    $conquest_day=$this->conquestArray[$sequence];
+                    $conquest->$conquest_day=$conquest->$conquest_day-1;
+                    $conquest->save();
+
+                    $user=User::where('id',Auth::user()->id)->first();
+                    $user->sequence=$sequence-1;  
+                    $user->save();
                 }
             }
         }
@@ -317,6 +319,10 @@ class TaskController extends Controller
         $allTaskNumber=Task::where('idUser',$idUser)->where('date',$date)->count();
         $taskSuccessNumber=Task::where('idUser',$idUser)->where('date',$date)->where('selected',1)->count();
         
+        if($allTaskNumber==0){
+            $verify=true;
+        }
+
         if($allTaskNumber>0){
             if($allTaskNumber==$taskSuccessNumber){
                 $verify=true;
@@ -329,21 +335,22 @@ class TaskController extends Controller
     private function verifyConquest(){
         $user=User::where('id',Auth::user()->id)->first();
         $sequenceNumber=$user->sequence;
+        $conquest=Conquest::where('idUser',$user->id)->first();
 
         if($this->verifyAllTaskComplete()){
             $user->sequence=$sequenceNumber+1;
             $user->save();
+            $conquest->already_decrease_sequence=false;
         }else{
-            if($user->sequence>0){
+            if($user->sequence>0 && $conquest->already_decrease_sequence==false){
                 $user->sequence=$sequenceNumber-1;  
                 $user->save();
+                $conquest->already_decrease_sequence=true;
             }
         }
 
-        $idUser=$user->id;
         $sequence=strval($user->sequence);
-       
-
+        
         $messages=[
             '1'=>'Você completou uma sequência de 1 dia!!!',
             '2'=>'Você completou uma sequência de 2 dias!!!',
@@ -369,8 +376,6 @@ class TaskController extends Controller
         ];
 
         $message="Voce concluiu as tarefas de hoje!!!";
-        $conquest=Conquest::where('idUser',$idUser)->first();
-
         if(array_key_exists($sequence, $this->conquestArray)){
             $conquest_day=$this->conquestArray[$sequence];
             
@@ -378,18 +383,23 @@ class TaskController extends Controller
                 $conquest->$conquest_day=$conquest->$conquest_day+1;
                 $conquest->sequence_zero=false;
                 $message=$messages[$sequence];
+                $conquest->already_decrease=false;
             }else{
                 $oldSequence=$sequence+1;
-                if(array_key_exists($oldSequence, $this->conquestArray)){
+                if(array_key_exists($oldSequence, $this->conquestArray) && $conquest->already_decrease==false){
                     $conquest_day=$this->conquestArray[$oldSequence];
                     $conquest->$conquest_day=$conquest->$conquest_day-1;
+                    $conquest->already_decrease=true;
                 }
             }
-        }else{
+        }
+
+        if(!$this->verifyAllTaskComplete() && $conquest->already_decrease==false){
             $oldSequence=$sequence+1;
             if(array_key_exists($oldSequence, $this->conquestArray)){
                 $conquest_day=$this->conquestArray[$oldSequence];
                 $conquest->$conquest_day=$conquest->$conquest_day-1;
+                $conquest->already_decrease=true;
             }
         }
 

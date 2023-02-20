@@ -219,29 +219,30 @@ class TaskController extends Controller
                 $task->task_path=$taskImg_path;
                 $task->task_img=$imgName;
                 $task->save();
-                
-                
-                if($wasComplete){
-                    $sequence=Auth::user()->sequence;
-                    if($sequence==0){
-                        $sequence=1;
-                    }
-                    $conquest=Conquest::where('idUser',$idUser)->first();
-                    $conquest_day=$this->conquestArray[$sequence];
-                    $conquest->$conquest_day=$conquest->$conquest_day-1;
-                    $conquest->save();
 
-                    $user=User::where('id',Auth::user()->id)->first();
-                    $user->sequence=$sequence-1;  
-                    $user->save();
+                $taskSuccessNumber=Task::where('idUser',$idUser)->where('date',$data['date'])->where('selected',1)->count();
+               
+                if(strtotime($data['date']) == strtotime(date('Y-m-d')))
+                    if($wasComplete && $taskSuccessNumber>0){
+                        $sequence=Auth::user()->sequence;
+                        if($sequence==0){
+                            $sequence=1;
+                        }
+                        $conquest=Conquest::where('idUser',$idUser)->first();
+                        $conquest_day=$this->conquestArray[$sequence];
+                        $conquest->$conquest_day=$conquest->$conquest_day-1;
+                        $conquest->save();
+
+                        $user=User::where('id',Auth::user()->id)->first();
+                        $user->sequence=$sequence-1;  
+                        $user->save();
+                    }
                 }
             }
         }
-    }
-
+    
         $array['isMe']=$isMe;
         return $array;
-    
     }
 
     public function update(Request $request,$idUser){
